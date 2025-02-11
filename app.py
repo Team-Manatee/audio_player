@@ -1,4 +1,9 @@
-from flask import Flask, render_template, send_from_directory
+from crypt import methods
+from distutils.command.upload import upload
+from fileinput import filename
+
+from flask import Flask, render_template, send_from_directory, request, send_file
+import shutil
 import os
 
 app = Flask(__name__)
@@ -9,7 +14,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok =True) #makes the uploads directory if it do
 
 ALLOWED_EXTENSIONS = {'mp3', 'wav'}
 
-#this function takes the filename, checks for a '.' and splits the name at the final '.' to check if its extention matches an item from the ALLOWED_EXTENSIONS set
+#this function takes the filename, checks for a '.' and splits the name at the final '.' to check if its extension matches an item from the ALLOWED_EXTENSIONS set
 def check_file_eligibility(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
@@ -25,12 +30,27 @@ def index():
     audio_files = []
     if os.path.exists(UPLOAD_FOLDER):
         audio_files = [f for f in os.listdir(UPLOAD_FOLDER) if check_file_eligibility(f)]
-
     #this sends the audio_files list to the html template
     return render_template('index.html', audio_files=audio_files)
+
+@app.route('/upload')
+def upload():
+    return render_template('upload.html')
+
+@app.route('/upload_audio', methods=['POST'])
+def upload_audio():
+    if request.method == 'POST':
+            fileitem = request.files['fileUp']
+            fileitem.save('uploads/' + fileitem.filename)
+            # this sends the audio_files list to the html template
+            audio_files = []
+            if os.path.exists(UPLOAD_FOLDER):
+                audio_files = [f for f in os.listdir(UPLOAD_FOLDER) if check_file_eligibility(f)]
+            return render_template('index.html', audio_files=audio_files)
+
+@app.route('/vocal')
+def vocal_separation():
 
 #runs the app
 if __name__ == '__main__':
     app.run(debug=False) #this runs the app with debug mode active
-
-
