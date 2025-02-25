@@ -1,12 +1,13 @@
-from crypt import methods
-from distutils.command.upload import upload
-from fileinput import filename
+#from crypt import methods
+#from distutils.command.upload import upload
+#from fileinput import filename
 
 from flask import Flask, render_template, send_from_directory, request, send_file
-import shutil
+#import shutil
 import os
 
 app = Flask(__name__)
+app.secret_key = 'test'
 
 UPLOAD_FOLDER = 'uploads' #Directory to store uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -40,17 +41,31 @@ def upload():
 @app.route('/upload_audio', methods=['POST'])
 def upload_audio():
     if request.method == 'POST':
-            fileitem = request.files['fileUp']
-            fileitem.save('uploads/' + fileitem.filename)
-            # this sends the audio_files list to the html template
+        if 'fileUp' not in request.files:
+            return render_template('results.html', msg="No file part")
+
+        fileitem = request.files['fileUp']
+
+        if fileitem.filename == '':
+            return render_template('results.html', msg="No file selected")
+
+        if fileitem and check_file_eligibility(fileitem.filename):
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], fileitem.filename)
+            fileitem.save(filepath)
+
+            # Get updated list of audio files
             audio_files = []
             if os.path.exists(UPLOAD_FOLDER):
                 audio_files = [f for f in os.listdir(UPLOAD_FOLDER) if check_file_eligibility(f)]
+
             return render_template('index.html', audio_files=audio_files)
+        else:
+            return render_template('results.html', msg="File type not allowed. Please upload .mp3 or .wav files only.")
 
 @app.route('/vocal')
 def vocal_separation():
+  return "Vocal separation feature coming soon"
 
 #runs the app
 if __name__ == '__main__':
-    app.run(debug=False) #this runs the app with debug mode active
+  app.run(debug=True, port=5001) #this runs the app with debug mode active
