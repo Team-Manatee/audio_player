@@ -1,9 +1,4 @@
-#from crypt import methods
-#from distutils.command.upload import upload
-#from fileinput import filename
-
-from flask import Flask, render_template, send_from_directory, request, send_file
-#import shutil
+from flask import *
 import os
 
 app = Flask(__name__)
@@ -53,12 +48,7 @@ def upload_audio():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], fileitem.filename)
             fileitem.save(filepath)
 
-            # Get updated list of audio files
-            audio_files = []
-            if os.path.exists(UPLOAD_FOLDER):
-                audio_files = [f for f in os.listdir(UPLOAD_FOLDER) if check_file_eligibility(f)]
-
-            return render_template('index.html', audio_files=audio_files)
+            return redirect(url_for('index'))
         else:
             return render_template('results.html', msg="File type not allowed. Please upload .mp3 or .wav files only.")
 
