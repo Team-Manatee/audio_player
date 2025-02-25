@@ -116,6 +116,11 @@
 
     <body>
         <h1>Audio Player</h1>
+        <div class="action-buttons">
+            <a href="/upload" class="action-button">Upload More Audio</a>
+            <a href="/vocal" class="action-button vocal">Vocal Separation</a>
+        </div>
+        <h1> </h1>
 
         {% if audio_files %}
             {% for file in audio_files %}
@@ -141,10 +146,6 @@
             </div>
             {% endfor %}
 
-            <div class="action-buttons">
-                <a href="/upload" class="action-button">Upload More Audio</a>
-                <a href="/vocal" class="action-button vocal">Vocal Separation</a>
-            </div>
         {% else %}
             <div class="empty-message">
                 <p>No audio files found. Please upload MP3 or WAV files to get started.</p>
